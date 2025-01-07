@@ -15,6 +15,7 @@ mv {MODEL_NAME}.npz ../model/vit_checkpoint/imagenet21k/{MODEL_NAME}.npz
 
 All data are available: [BTCV preprocessed data](https://drive.google.com/drive/folders/1ACJEoTp-uqfFJ73qS3eUObQh52nGuzCd?usp=sharing) and [ACDC data](https://drive.google.com/drive/folders/1KQcrci7aKsYZi1hQoZ3T3QUtcy7b--n4?usp=drive_link).
 
+New preprocessed dataset is Severstal, you can find the original data in [Kaggle](https://www.kaggle.com/c/severstal-steel-defect-detection#) and convert using the (`custom_dataset.py`) as a converter
 ### Folder structure after setup
 
     .
