@@ -15,16 +15,25 @@ mv {MODEL_NAME}.npz ../model/vit_checkpoint/imagenet21k/{MODEL_NAME}.npz
 
 Please go to ["./datasets/README.md"](datasets/README.md) for details, or please send an Email to jienengchen01 AT gmail.com to request the preprocessed data. If you would like to use the preprocessed data, please use it for research purposes and do not redistribute it.
 
+### Folder structure after setup
+
+    .
+    ├── data                   # Dataset used for training
+    ├── model                    # Downloaded pre-trained ViT models
+    ├── TransUNet                     # Source files 
+
 ### 3. Environment
 
 Please prepare an environment with python=3.7, and then use the command "pip install -r requirements.txt" for the dependencies.
+
+Notes: install the appropriate PyTorch version that matched with your CUDA version
 
 ### 4. Train/Test
 
 - Run the train script on synapse dataset. The batch size can be reduced to 12 or 6 to save memory, and both can reach similar performance.
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python train.py --dataset Synapse --vit_name R50-ViT-B_16
+python train.py --dataset Synapse --vit_name R50-ViT-B_16
 ```
 
 - Run the test script on synapse dataset. It supports testing for both 2D images and 3D volumes.
