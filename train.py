@@ -7,7 +7,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from networks.vit_seg_modeling import VisionTransformer as ViT_seg
 from networks.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
-from trainer import trainer_synapse
+from trainer import trainer_synapse, trainer_severstal
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--root_path', type=str,
@@ -17,7 +17,7 @@ parser.add_argument('--dataset', type=str,
 parser.add_argument('--list_dir', type=str,
                     default='./lists/lists_Synapse', help='list dir')
 parser.add_argument('--num_classes', type=int,
-                    default=9, help='output channel of network')
+                    default=10, help='output channel of network')
 parser.add_argument('--max_iterations', type=int,
                     default=30000, help='maximum epoch number to train')
 parser.add_argument('--max_epochs', type=int,
@@ -39,6 +39,8 @@ parser.add_argument('--vit_name', type=str,
                     default='R50-ViT-B_16', help='select one vit model')
 parser.add_argument('--vit_patches_size', type=int,
                     default=16, help='vit_patches_size, default is 16')
+parser.add_argument('--root_dir', type=str,
+                    default='', help='root dir for Severstal')
 args = parser.parse_args()
 
 
@@ -59,12 +61,20 @@ if __name__ == "__main__":
         'Synapse': {
             'root_path': '../data/Synapse/train_npz',
             'list_dir': './lists/lists_Synapse',
-            'num_classes': 9,
+            'num_classes': 10,
+            'root_dir': r"E:\project_TransUNet\data\Synapse\train_npz"
         },
+        'Severstal': {
+            'root_dir': r"E:\project_TransUNet\data\Severstal\preprocessed",
+            'num_classes': 4,
+            'root_path': '../data/Synapse/train_npz',
+            'list_dir': './lists/lists_Synapse',
+        }
     }
     if args.batch_size != 24 and args.batch_size % 6 == 0:
         args.base_lr *= args.batch_size / 24
     args.num_classes = dataset_config[dataset_name]['num_classes']
+    args.root_dir = dataset_config[dataset_name]['root_dir']
     args.root_path = dataset_config[dataset_name]['root_path']
     args.list_dir = dataset_config[dataset_name]['list_dir']
     args.is_pretrain = True
@@ -91,5 +101,5 @@ if __name__ == "__main__":
     net = ViT_seg(config_vit, img_size=args.img_size, num_classes=config_vit.n_classes).cuda()
     net.load_from(weights=np.load(config_vit.pretrained_path))
 
-    trainer = {'Synapse': trainer_synapse,}
+    trainer = {'Synapse': trainer_synapse, 'Severstal': trainer_severstal}
     trainer[dataset_name](args, net, snapshot_path)

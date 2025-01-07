@@ -22,9 +22,9 @@ args = parser.parse_args()
 annotation = pd.read_csv(args.annotation_file)
 print(f"Annotation file loaded with {len(annotation.columns)} columns, and {len(annotation)} records")
 
-if args.subset == 'train':
-    train_images = glob(os.path.join(args.root_dir, 'train_images/*.jpg'))
-    print(f"Total number of train images: {len(train_images)}")
+
+train_images = glob(os.path.join(args.root_dir, 'train_images/*.jpg'))
+print(f"Total number of train images: {len(train_images)}")
 
 
 def decode_pixel(encoded_pixel):
@@ -62,13 +62,13 @@ if not train_images is None:
             x, y, w, h = cv2.boundingRect(contour)
             center = int(x + w / 2)
             if center + 128 > image.shape[1]:
-                new_image = image[:, image.shape[1] - 128:]
+                new_image = grayscale[:, image.shape[1] - 128:]
                 new_mask = mask[:, image.shape[1] - 128:]
             elif center - 128 < 0:
-                new_image = image[:, 0:128]
+                new_image = grayscale[:, 0:128]
                 new_mask = mask[:, 0:128]
             else:
-                new_image = image[:, center - 128:center + 128]
+                new_image = grayscale[:, center - 128:center + 128]
                 new_mask = mask[:, center - 128:center + 128]
             np.savez(os.path.join(args.output_dir, 'train', f"{row['ImageId'].split('.')[0]}_{mask_count}"), image=new_image, label=new_mask)
             mask_count += 1
