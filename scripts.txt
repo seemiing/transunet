@@ -1,1 +1,3 @@
 python train.py --dataset Severstal --img_size=256
+
+python train.py --dataset Synapse 
