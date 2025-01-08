@@ -7,7 +7,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from networks.vit_seg_modeling import VisionTransformer as ViT_seg
 from networks.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
-from trainer import trainer_synapse, trainer_severstal
+from trainer import trainer_severstal
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--root_path', type=str,
@@ -58,25 +58,15 @@ if __name__ == "__main__":
     torch.cuda.manual_seed(args.seed)
     dataset_name = args.dataset
     dataset_config = {
-        'Synapse': {
-            'root_path': '../data/Synapse/train_npz',
-            'list_dir': './lists/lists_Synapse',
-            'num_classes': 10,
-            'root_dir': r"E:\project_TransUNet\data\Synapse\train_npz"
-        },
         'Severstal': {
             'root_dir': r"E:\project_TransUNet\data\Severstal\preprocessed",
             'num_classes': 2,
-            'root_path': '../data/Synapse/train_npz',
-            'list_dir': './lists/lists_Synapse',
         }
     }
     if args.batch_size != 24 and args.batch_size % 6 == 0:
         args.base_lr *= args.batch_size / 24
     args.num_classes = dataset_config[dataset_name]['num_classes']
     args.root_dir = dataset_config[dataset_name]['root_dir']
-    args.root_path = dataset_config[dataset_name]['root_path']
-    args.list_dir = dataset_config[dataset_name]['list_dir']
     args.is_pretrain = True
     args.exp = 'TU_' + dataset_name + str(args.img_size)
     snapshot_path = "../model/{}/{}".format(args.exp, 'TU')
@@ -100,5 +90,5 @@ if __name__ == "__main__":
         config_vit.patches.grid = (int(args.img_size / args.vit_patches_size), int(args.img_size / args.vit_patches_size))
     net = ViT_seg(config_vit, img_size=args.img_size, num_classes=config_vit.n_classes).cuda()
 
-    trainer = {'Synapse': trainer_synapse, 'Severstal': trainer_severstal}
+    trainer = {'Severstal': trainer_severstal}
     trainer[dataset_name](args, net, snapshot_path)
