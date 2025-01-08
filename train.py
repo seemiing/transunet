@@ -66,7 +66,7 @@ if __name__ == "__main__":
         },
         'Severstal': {
             'root_dir': r"E:\project_TransUNet\data\Severstal\preprocessed",
-            'num_classes': 4,
+            'num_classes': 2,
             'root_path': '../data/Synapse/train_npz',
             'list_dir': './lists/lists_Synapse',
         }
@@ -99,7 +99,6 @@ if __name__ == "__main__":
     if args.vit_name.find('R50') != -1:
         config_vit.patches.grid = (int(args.img_size / args.vit_patches_size), int(args.img_size / args.vit_patches_size))
     net = ViT_seg(config_vit, img_size=args.img_size, num_classes=config_vit.n_classes).cuda()
-    net.load_from(weights=np.load(config_vit.pretrained_path))
 
     trainer = {'Synapse': trainer_synapse, 'Severstal': trainer_severstal}
     trainer[dataset_name](args, net, snapshot_path)
