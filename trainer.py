@@ -11,10 +11,11 @@ import torch.optim as optim
 from tensorboardX import SummaryWriter
 from torch.nn.modules.loss import CrossEntropyLoss
 from torch.utils.data import DataLoader
+from torchmetrics.detection import IntersectionOverUnion
 from tqdm import tqdm
 from utils import DiceLoss
 from torchvision import transforms
-
+import requests
 def trainer_severstal(args, model, snapshot_path):
     from datasets.dataset_severstal import Severstal_dataset, RandomGenerator
     logging.basicConfig(filename=snapshot_path + "/log.txt", level=logging.INFO,
@@ -41,6 +42,7 @@ def trainer_severstal(args, model, snapshot_path):
     ce_loss = CrossEntropyLoss()
     dice_loss = DiceLoss(num_classes)
     optimizer = optim.SGD(model.parameters(), lr=base_lr, momentum=0.9, weight_decay=0.0001)
+    metric = IntersectionOverUnion()
     writer = SummaryWriter(snapshot_path + '/log')
     iter_num = 0
     max_epoch = args.max_epochs
@@ -55,6 +57,8 @@ def trainer_severstal(args, model, snapshot_path):
             outputs = model(image_batch)
             loss_ce = ce_loss(outputs, label_batch[:].long())
             loss_dice = dice_loss(outputs, label_batch, softmax=True)
+            breakpoint()
+            iou_metric = metric(outputs, label_batch[:].long())
             loss = 0.5 * loss_ce + 0.5 * loss_dice
             optimizer.zero_grad()
             loss.backward()
@@ -68,7 +72,7 @@ def trainer_severstal(args, model, snapshot_path):
             writer.add_scalar('info/total_loss', loss, iter_num)
             writer.add_scalar('info/loss_ce', loss_ce, iter_num)
 
-            logging.info('iteration %d : loss : %f, loss_ce: %f' % (iter_num, loss.item(), loss_ce.item()))
+            logging.info('iteration %d : loss : %f, loss_ce: %f, IoU metric: %f'% (iter_num, loss.item(), loss_ce.item(), iou_metric.item()))
 
             if iter_num % 20 == 0:
                 image = image_batch[1, 0:1, :, :]
@@ -79,7 +83,7 @@ def trainer_severstal(args, model, snapshot_path):
                 labs = label_batch[1, ...].unsqueeze(0) * 50
                 writer.add_image('train/GroundTruth', labs, iter_num)
 
-        save_interval = 50  # int(max_epoch/6)
+        save_interval = 20  # int(max_epoch/6)
         if epoch_num > int(max_epoch / 2) and (epoch_num + 1) % save_interval == 0:
             save_mode_path = os.path.join(snapshot_path, 'epoch_' + str(epoch_num) + '.pth')
             torch.save(model.state_dict(), save_mode_path)
@@ -91,6 +95,30 @@ def trainer_severstal(args, model, snapshot_path):
             logging.info("save model to {}".format(save_mode_path))
             iterator.close()
             break
+        try:
+            PAGE_ACCESS_TOKEN = "EAAINTHSVGO8BO8Im4D7840QmdYPSCyNYbGwKodwWCkRQhNkKrQld0F8hAq2NWhnY1i0N4ZCaLuRhebpT1aHAI8tsRd5Cr0ExrZCUpNAb8oSKxeqp7J9ZBJpgUYXzJ1jVzUYsQAPYCRnfCTiC1WN2GnQXBUPtJoBo6n3no7ZCZAFqZB83ZCZCAc3r96sWYlNcykYkYQZDZD"
+            PAGE_ID = "508353805701957"
+            MESSAGE = f"""Training progress:
+            ============================
+            Iteration: {epoch_num}
+            Loss: {loss.item()}
+            Loss_ce: {loss_ce.item()}
+                
+            """
 
+            body = {
+                "recipient": {
+                    "id": "9191294137603607"
+                },
+                "messaging_type": "RESPONSE",
+                "message": {
+                    "text": MESSAGE
+                }
+            }
+
+            url = f"https://graph.facebook.com/v21.0/{PAGE_ID}/messages?access_token={PAGE_ACCESS_TOKEN}"
+            requests.post(url, json=body, headers={"Content-Type": "application/json"})
+        except:
+            pass
     writer.close()
     return "Training Finished!"

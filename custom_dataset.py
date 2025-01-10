@@ -70,7 +70,9 @@ if not train_images is None:
             else:
                 new_image = grayscale[:, center - 128:center + 128]
                 new_mask = mask[:, center - 128:center + 128]
-            np.savez(os.path.join(args.output_dir, 'train', f"{row['ImageId'].split('.')[0]}_{mask_count}"), image=new_image, label=new_mask)
+            # np.savez(os.path.join(args.output_dir, 'train', f"{row['ImageId'].split('.')[0]}_{mask_count}"), image=new_image, label=new_mask)
+            cv2.imwrite(os.path.join('./severstal_inpainting', f"{row['ImageId'].split('.')[0]}_{mask_count}.jpg"), new_image)
+            cv2.imwrite(os.path.join('./severstal_inpainting', f"{row['ImageId'].split('.')[0]}_{mask_count}_mask.jpg"), new_mask)
             mask_count += 1
         total += 1
 print(f"Created {total} segmentation masks")

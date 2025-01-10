@@ -1,3 +1,14 @@
 python train.py --dataset Severstal --img_size=256
 
 python train.py --dataset Synapse 
+
+curl -X POST -H "Content-Type: application/json" -d '{
+  "recipient":{
+    "id":"9191294137603607"
+  },
+  "messaging_type": "RESPONSE",
+  "message":{
+    "text":"Hello, world!"
+  }
+}' "https://graph.facebook.com/v21.0/508353805701957/messages?access_token=EAAINTHSVGO8BO8Im4D7840QmdYPSCyNYbGwKodwWCkRQhNkKrQld0F8hAq2NWhnY1i0N4ZCaLuRhebpT1aHAI8tsRd5Cr0ExrZCUpNAb8oSKxeqp7J9ZBJpgUYXzJ1jVzUYsQAPYCRnfCTiC1WN2GnQXBUPtJoBo6n3no7ZCZAFqZB83ZCZCAc3r96sWYlNcykYkYQZDZD"
+{"recipient_id":"9191294137603607","message_id":"m_kAfgrveqjGUFSlnIpOTz8MupbrxW9fO_Syq9rV-T_SPZnWi3GsS0TrZlImqADILCxcY0RiRMG10NW6Nis722-g"}
