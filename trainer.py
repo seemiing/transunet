@@ -52,12 +52,12 @@ def trainer_severstal(args, model, snapshot_path):
     iterator = tqdm(range(max_epoch), ncols=70)
     for epoch_num in iterator:
         for i_batch, sampled_batch in enumerate(trainloader):
+            breakpoint()
             image_batch, label_batch = sampled_batch['image'], sampled_batch['label']
             image_batch, label_batch = image_batch.cuda(), label_batch.cuda()
             outputs = model(image_batch)
             loss_ce = ce_loss(outputs, label_batch[:].long())
             loss_dice = dice_loss(outputs, label_batch, softmax=True)
-            breakpoint()
             iou_metric = metric(outputs, label_batch[:].long())
             loss = 0.5 * loss_ce + 0.5 * loss_dice
             optimizer.zero_grad()
